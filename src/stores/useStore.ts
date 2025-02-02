@@ -237,9 +237,9 @@ const assistantPrompts: PromptTemplate[] = [
 ];
 
 const splitIntoSentences = (content: string): string[] => {
-  // 使用正则表达式分割句子，保留序号和内容的关系
+  // 只使用连续的换行符作为分隔符
   return content
-    .split(/(?<=\.)\s+(?=\d+\.)|(?<=\?)\s+(?=\d+\.)|(?<=!)\s+(?=\d+\.)|\n\n+/)
+    .split(/\n\n+/)
     .map(s => s.trim())
     .filter(Boolean);
 };
@@ -400,29 +400,21 @@ export const useStore = create<AppState>((set, get) => ({
     const currentPrompt = state.prompts.find(p => p.id === state.currentPromptId);
     
     if (!currentPrompt?.sentences) return '';
-    
-    // 只处理完整的句子
-    const completeSentences = currentPrompt.sentences
-      .filter(sentence => {
-        // 检查句子中的所有输入字段是否都已填写
-        return sentence.segments.every(segment => {
-          if (segment.type === 'static') return true;
-          const inputKey = `${currentPrompt.id}-${segment.placeholder}`;
-          const inputValue = state.promptInputs[inputKey];
-          return inputValue && inputValue.trim() !== '';
-        });
-      })
-      .map(sentence => {
-        return sentence.segments.map(segment => {
-          if (segment.type === 'static') {
-            return segment.content;
-          } else {
-            const inputKey = `${currentPrompt.id}-${segment.placeholder}`;
-            return state.promptInputs[inputKey].trim();
-          }
-        }).join('');
-      });
 
-    return completeSentences.join('\n');
+    // 处理每个句子组
+    const completeSentences = currentPrompt.sentences.map(sentence => {
+      return sentence.segments.map(segment => {
+        if (segment.type === 'static') {
+          return segment.content;
+        } else {
+          const inputKey = `${currentPrompt.id}-${segment.placeholder}`;
+          // 如果输入框有值就用输入的值，否则保持占位符的方括号格式
+          const inputValue = state.promptInputs[inputKey]?.trim();
+          return inputValue || `[${segment.placeholder}]`;
+        }
+      }).join('');
+    });
+
+    return completeSentences.join('\n\n');
   }
 })); 

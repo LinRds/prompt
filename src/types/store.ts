@@ -58,4 +58,5 @@ export interface AppState {
   getPromptsByNodeId: (nodeId: string) => PromptTemplate[];
   getCorePromptByNodeId: (nodeId: string) => PromptTemplate | undefined;
   parsePromptToSegments: (content: string) => PromptSegment[];
+  generateFullPrompt: () => string;
 } 

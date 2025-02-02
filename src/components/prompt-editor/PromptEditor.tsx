@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Card, Button, Typography, Divider, Space } from 'antd';
-import { CopyOutlined, EyeOutlined, ClearOutlined } from '@ant-design/icons';
+import React, { useMemo, useState } from 'react';
+import { Card, Button, Typography, Divider, Space, Tooltip } from 'antd';
+import { CopyOutlined, EyeOutlined, ClearOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useStore } from '@/stores/useStore';
 import { SegmentedPrompt } from './SegmentedPrompt';
 import { SentenceGroup } from '@/types/store';
@@ -11,13 +11,28 @@ import { useMessage } from '@/components/common/MessageProvider';
 const { Text, Title, Paragraph } = Typography;
 
 export const PromptEditor: React.FC = () => {
-  const { currentPromptId, currentNodeId, prompts, promptInputs, clearNodeInputs, generateFullPrompt } = useStore();
+  const { 
+    currentPromptId, 
+    customPrompt, 
+    setCustomPrompt,
+    promptInputs,
+    generateFullPrompt,
+    currentNodeId,
+    prompts,
+    clearNodeInputs
+  } = useStore();
   const message = useMessage();
   const currentPrompt = currentPromptId ? prompts.find(p => p.id === currentPromptId) : null;
 
   const previewContent = useMemo(() => {
     if (!currentPrompt) return '暂无内容可预览';
-    return generateFullPrompt() || '暂无内容可预览';
+    
+    // 如果有用户输入的内容，显示处理后的内容
+    const processedContent = generateFullPrompt();
+    if (processedContent) return processedContent;
+
+    // 如果没有用户输入，显示原始模板内容
+    return currentPrompt.content;
   }, [currentPrompt, generateFullPrompt, promptInputs]);
 
   const isSentenceComplete = (sentence: SentenceGroup): boolean => {
@@ -37,11 +52,14 @@ export const PromptEditor: React.FC = () => {
 
   const handleCopy = () => {
     const content = generateFullPrompt();
-    if (!content?.trim()) {
-      message.warning('没有可复制的完整句子');
+    // 如果没有用户输入的内容，使用原始模板内容
+    const textToCopy = content || currentPrompt?.content;
+    
+    if (!textToCopy?.trim()) {
+      message.warning('没有可复制的内容');
       return;
     }
-    navigator.clipboard.writeText(content);
+    navigator.clipboard.writeText(textToCopy);
     message.success('已复制到剪贴板');
   };
 
@@ -53,13 +71,7 @@ export const PromptEditor: React.FC = () => {
   };
 
   if (!currentPrompt) {
-    return (
-      <Card title="提示词编辑器" className="h-full">
-        <div className="text-gray-400 text-center">
-          请先选择左侧项目节点
-        </div>
-      </Card>
-    );
+    return null;
   }
 
   const hasInputs = Object.keys(promptInputs).some(key => 
@@ -93,22 +105,41 @@ export const PromptEditor: React.FC = () => {
       >
         <div className="flex flex-col h-full">
           <div className="flex-grow">
-            {currentPrompt.segments ? (
-              <SegmentedPrompt 
-                segments={currentPrompt.segments} 
-                promptId={currentPrompt.id} 
-              />
-            ) : (
-              <div className="text-gray-400 text-center">
-                该模板暂不支持编辑
-              </div>
-            )}
+            <div 
+              className="prose max-w-none"
+              style={{
+                minHeight: '200px'
+              }}
+            >
+              {currentPrompt.segments ? (
+                <SegmentedPrompt 
+                  segments={currentPrompt.segments} 
+                  promptId={currentPrompt.id} 
+                />
+              ) : (
+                <div className="text-gray-400 text-center">
+                  该模板暂不支持编辑
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </Card>
 
       <div className="flex flex-col gap-2">
-        <Title level={4} className="!mb-0">预览</Title>
+        <div className="flex items-center gap-2">
+          <Title level={4} className="!mb-0">预览</Title>
+          <Tooltip 
+            title={
+              <div>
+                <p>1. 预览与复制内容保持一致；</p>
+                <p>2. 没有填充的文本框所在的句子不会被复制。</p>
+              </div>
+            }
+          >
+            <QuestionCircleOutlined className="text-gray-400 cursor-help" />
+          </Tooltip>
+        </div>
         <Card 
           className="w-full bg-gray-50"
           bodyStyle={{ 
