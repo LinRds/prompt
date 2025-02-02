@@ -6,11 +6,27 @@ import { useStore } from '@/stores/useStore';
 import Link from 'next/link';
 import { FileTextOutlined, CodeOutlined, ToolOutlined } from '@ant-design/icons';
 import { TimelineNode } from './TimelineNode';
+import { ProjectNode } from '@/types/store';
 
 const { Title } = Typography;
 
 type ProjectNodesProps = {
   stage?: 'planning' | 'implementation' | 'maintenance';
+};
+
+const getCategoryTitle = (category: string) => {
+  switch (category) {
+    case 'code-generation':
+      return '代码生成';
+    case 'code-review':
+      return '代码审核';
+    case 'database-design':
+      return '数据库设计';
+    case 'documentation':
+      return '文档生成';
+    default:
+      return category;
+  }
 };
 
 export const ProjectNodes: React.FC<ProjectNodesProps> = ({ stage = 'planning' }) => {
@@ -19,7 +35,6 @@ export const ProjectNodes: React.FC<ProjectNodesProps> = ({ stage = 'planning' }
 
   // 当 stage 改变时，重置状态
   useEffect(() => {
-    // 只在节点列表存在且当前节点不在当前阶段时更新
     const firstNode = nodes[0];
     const currentNodeInStage = nodes.some(node => node.id === currentNodeId);
     
@@ -27,9 +42,9 @@ export const ProjectNodes: React.FC<ProjectNodesProps> = ({ stage = 'planning' }
       setCurrentNode(firstNode.id);
       clearAllInputs();
     }
-  }, [stage]); // 只依赖 stage 的变化
+  }, [stage]);
 
-  const getTitle = () => {
+  const getStageTitle = () => {
     switch (stage) {
       case 'planning':
         return '生成技术方案';
@@ -42,21 +57,43 @@ export const ProjectNodes: React.FC<ProjectNodesProps> = ({ stage = 'planning' }
     }
   };
 
+  // 渲染节点及其子节点
+  const renderNode = (node: ProjectNode, globalIndex: number) => {
+    const childNodes = nodes.filter(n => n.parentId === node.id);
+    
+    return (
+      <div key={node.id}>
+        <TimelineNode
+          number={globalIndex + 1}
+          title={node.title}
+          description={node.description}
+          isActive={currentNodeId === node.id}
+          onClick={() => setCurrentNode(node.id)}
+        />
+        {childNodes.length > 0 && (
+          <div className="ml-6 mt-2">
+            {childNodes.map((childNode, childIndex) => (
+              <TimelineNode
+                key={childNode.id}
+                number={childIndex + 1}
+                title={childNode.title}
+                description={childNode.description}
+                isActive={currentNodeId === childNode.id}
+                onClick={() => setCurrentNode(childNode.id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="space-y-4">
-        <Title level={4} className="px-4 !mb-6">{getTitle()}</Title>
+        <Title level={4} className="px-4 !mb-6">{getStageTitle()}</Title>
         <div className="px-4">
-          {nodes.map((node, index) => (
-            <TimelineNode
-              key={node.id}
-              number={index + 1}
-              title={node.title}
-              description={node.description}
-              isActive={currentNodeId === node.id}
-              onClick={() => setCurrentNode(node.id)}
-            />
-          ))}
+          {nodes.filter(node => !node.parentId).map((node, index) => renderNode(node, index))}
         </div>
       </div>
       
