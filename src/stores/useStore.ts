@@ -71,7 +71,98 @@ const implementationNodes: ProjectNode[] = [
   }
 ];
 
-const maintenanceNodes: ProjectNode[] = [];
+const maintenanceNodes: ProjectNode[] = [
+  {
+    id: 'test',
+    stage: 'maintenance',
+    category: 'testing',
+    title: '测试',
+    description: '单元测试、集成测试等测试相关任务',
+    defaultPrompt: `I need unit tests for the following function:
+[Paste your function here]
+
+Please generate a comprehensive set of unit tests that cover:
+1. Happy path scenarios
+2. Edge cases
+3. Error conditions
+4. Boundary value analysis
+
+For each test case, please:
+1. Provide a brief description of what the test is checking
+2. Write the actual test code using [preferred testing framework, e.g., pytest]
+3. Explain any mock objects or fixtures that might be needed
+
+Also, suggest any additional tests that might be relevant based on common pitfalls or best practices for this type of function.`
+  },
+  {
+    id: 'security',
+    stage: 'maintenance',
+    category: 'security',
+    title: '代码安全',
+    description: '代码安全审计与漏洞检测',
+    defaultPrompt: `Please perform a security audit on the following code:
+[Paste your code here]
+
+In your audit, please:
+1. Identify any potential security vulnerabilities, including but not limited to:
+   - Injection flaws (SQL, NoSQL, OS command injection, etc.)
+   - Broken authentication
+   - Sensitive data exposure
+   - XML External Entities (XXE)
+   - Broken access control
+   - Security misconfigurations
+   - Cross-Site Scripting (XSS)
+   - Insecure deserialization
+   - Using components with known vulnerabilities
+   - Insufficient logging & monitoring
+2. For each vulnerability found:
+   - Explain the potential impact
+   - Suggest a fix or mitigation strategy
+   - Provide a code snippet demonstrating the fix, if applicable
+3. Suggest any general security improvements or best practices that could be applied to this code.
+4. Recommend any security-related libraries or tools that could help improve the overall security posture of the application.`
+  },
+  {
+    id: 'optimization',
+    stage: 'maintenance',
+    category: 'optimization',
+    title: '优化',
+    description: '代码优化与性能提升',
+    defaultPrompt: `Please review the following code for quality and potential issues:
+[Paste your code here]
+
+In your review, please consider:
+1. Code style and adherence to best practices
+2. Potential bugs or edge cases not handled
+3. Performance optimizations
+4. Security vulnerabilities
+5. Readability and maintainability
+
+For each issue found, please:
+1. Explain the problem
+2. Suggest a fix
+3. Provide a brief rationale for the suggested change
+
+Additionally, are there any overall improvements or refactoring suggestions you would make for this code?`
+  },
+  {
+    id: 'version-control',
+    stage: 'maintenance',
+    category: 'version-control',
+    title: '版本控制',
+    description: '代码版本管理相关任务',
+    defaultPrompt: `I've made the following changes to my code:
+[Paste your git diff or describe the changes]
+
+Please help me create a commit message that:
+1. Summarizes the changes concisely (50 characters or less for the subject line)
+2. Provides more details in the body (wrap at 72 characters)
+3. Follows best practices for git commit messages
+4. Includes any relevant issue numbers or references
+
+The commit message should be informative enough that team members can understand the changes without having to look at the code.`
+  }
+];
 
 // 将节点的默认提示词直接作为一个普通模板
 const createDefaultPrompts = (nodes: ProjectNode[]): PromptTemplate[] => {
@@ -214,6 +305,228 @@ const additionalPrompts: PromptTemplate[] = [
     title: '文档审核',
     description: '审核现有文档',
     content: "Please review the following documentation:\n[Paste current docs]\nConsidering the latest best practices and common user pain points in similar projects:\n1. Suggest any sections that should be added or expanded\n2. Identify any parts that might be outdated or no longer relevant\n3. Recommend improvements for clarity and user-friendliness"
+  },
+  // 测试相关模板
+  {
+    id: 'integration-test',
+    nodeId: 'test',
+    title: '集成测试',
+    description: '生成集成测试用例',
+    content: `I need to create integration tests for the following components:
+[List components and their interactions]
+
+Please suggest a set of integration tests that:
+1. Cover the main interaction scenarios between these components
+2. Test for proper error handling and edge cases
+3. Include any necessary setup and teardown procedures
+
+Provide the test scenarios in a clear, step-by-step format, and include any necessary mock objects or test data.`
+  },
+  {
+    id: 'performance-test',
+    nodeId: 'test',
+    title: '性能测试',
+    description: '性能测试计划',
+    content: `I need to create a performance test plan for my application. The key areas of concern are:
+[List main functionalities or components to be tested]
+
+Please help me create a performance test plan that includes:
+1. Key performance indicators to measure
+2. Test scenarios to simulate various load conditions
+3. Suggestions for tools or frameworks to use
+4. Strategies for identifying performance bottlenecks
+5. Best practices for interpreting and acting on the results`
+  },
+  {
+    id: 'security-test',
+    nodeId: 'test',
+    title: '安全测试',
+    description: '安全测试用例',
+    content: `Please review the following code for potential security vulnerabilities:
+[Paste your code]
+
+Consider common security issues such as:
+1. Injection flaws
+2. Broken authentication
+3. Sensitive data exposure
+4. XML external entities (XXE)
+5. Broken access control
+6. Security misconfigurations
+7. Cross-site scripting (XSS)
+
+For each vulnerability found, explain the risk and suggest secure coding practices to mitigate it.`
+  },
+  {
+    id: 'test-data',
+    nodeId: 'test',
+    title: '测试数据',
+    description: '生成测试数据',
+    content: `I need to generate test data for the following database schema:
+[Paste your schema here]
+
+Please help me create a test data generation plan:
+1. Suggest appropriate ranges or types of values for each field
+2. Provide SQL or script to generate a diverse set of test data, including:
+   - Normal cases
+   - Edge cases
+   - Invalid data to test error handling
+3. Ensure referential integrity is maintained for related tables
+4. Include any specific scenarios or data patterns crucial for thorough testing`
+  },
+  {
+    id: 'debug',
+    nodeId: 'test',
+    title: 'Debug',
+    description: '调试问题',
+    content: `I'm encountering the following bug:
+[Describe the bug, including any error messages and the steps to reproduce]
+
+Here's the relevant code:
+[Paste the code related to the bug]
+
+Please help me debug this issue:
+1. Analyze the code and suggest potential causes of the bug
+2. Provide step-by-step debugging strategies I can follow
+3. Suggest any tools or techniques that might be helpful in diagnosing the issue
+4. If possible, propose potential fixes and explain their reasoning`
+  },
+  // 安全相关模板
+  {
+    id: 'sql-injection',
+    nodeId: 'security',
+    title: 'SQL注入检测',
+    description: '检测SQL注入漏洞',
+    content: `Please review the following database interaction code for potential SQL injection vulnerabilities:
+[Paste your database interaction code]
+
+For each vulnerability found:
+1. Explain how it could be exploited
+2. Provide a secure alternative implementation
+3. Suggest any relevant security libraries or techniques specific to our database system`
+  },
+  {
+    id: 'frontend-security',
+    nodeId: 'security',
+    title: '前端安全',
+    description: '前端代码安全检查',
+    content: `Please review the following front-end code for security best practices:
+[Paste your front-end code]
+
+Consider aspects such as:
+1. Cross-Site Scripting (XSS) prevention
+2. Secure handling of sensitive data
+3. Protection against Cross-Site Request Forgery (CSRF)
+4. Secure communication with back-end APIs
+
+Provide specific recommendations for improving the security of this code, including any relevant libraries or techniques for our front-end framework.`
+  },
+  // 优化相关模板
+  {
+    id: 'performance-optimization',
+    nodeId: 'optimization',
+    title: '性能优化',
+    description: '代码性能优化',
+    content: `Please analyze the following code for performance optimization opportunities:
+[Paste your code here]
+
+In your analysis, please:
+1. Identify any performance bottlenecks or inefficient operations
+2. Suggest optimizations, considering:
+   - Time complexity improvements
+   - Memory usage optimization
+   - Reduction of unnecessary operations or function calls
+   - Potential for parallelization or asynchronous operations
+   - Caching strategies
+3. For each suggestion:
+   - Explain the expected performance impact
+   - Provide a code snippet demonstrating the optimization
+   - Discuss any potential trade-offs`
+  },
+  {
+    id: 'best-practices',
+    nodeId: 'optimization',
+    title: '最佳实践',
+    description: '最新最佳实践更新',
+    content: `Please provide an update on the latest best practices for [your language/framework] as of [current date], focusing on:
+1. Security enhancements and newly discovered vulnerabilities
+2. Performance optimization techniques
+3. New language features or libraries that could improve security or performance
+4. Any deprecated practices that should be avoided
+
+For each point, please explain:
+- What the practice or vulnerability is
+- Why it's important
+- How to implement or mitigate it in practical terms`
+  },
+  // 版本控制相关模板
+  {
+    id: 'merge-conflict',
+    nodeId: 'version-control',
+    title: '解决冲突',
+    description: '解决合并冲突',
+    content: `I'm facing the following merge conflict:
+[Paste the conflicting code sections]
+
+The feature I'm trying to merge aims to: [Briefly describe the feature's purpose]
+
+Please help me resolve this conflict by:
+1. Analyzing both versions of the code
+2. Suggesting the best way to combine the changes
+3. Providing a resolved version of the code
+4. Explaining the reasoning behind the suggested resolution`
+  },
+  {
+    id: 'code-review',
+    nodeId: 'version-control',
+    title: '代码评审',
+    description: '代码评审建议',
+    content: `Please review the following pull request:
+[Paste the PR diff or provide a summary of changes]
+
+In your review, please:
+1. Identify any potential issues or improvements in the code
+2. Check for adherence to our project's coding standards and best practices
+3. Suggest any tests that might be needed
+4. Point out any parts of the code that might need more documentation
+5. Highlight any security or performance concerns`
+  },
+  {
+    id: 'gitignore',
+    nodeId: 'version-control',
+    title: 'Gitignore',
+    description: '生成.gitignore文件',
+    content: `I'm starting a new [language/framework] project. Please help me create a comprehensive .gitignore file that:
+1. Excludes common system and IDE files
+2. Ignores language-specific build artifacts and dependencies
+3. Ensures no sensitive information (like API keys) is accidentally committed
+
+Please provide explanations for any non-obvious entries.`
+  },
+  {
+    id: 'release-notes',
+    nodeId: 'version-control',
+    title: '发布日志',
+    description: '生成发布日志',
+    content: `We're preparing to release version [X.Y.Z] of our software. Based on the following commit history since our last release:
+[Paste relevant commit history]
+
+Please help me draft release notes that:
+1. Summarize key new features
+2. List any breaking changes and migration steps
+3. Mention bug fixes and performance improvements
+4. Thank contributors (if applicable)`
+  },
+  {
+    id: 'branch-naming',
+    nodeId: 'version-control',
+    title: '分支命名',
+    description: '分支命名规范',
+    content: `Our team needs a consistent branch naming convention. Please suggest a branch naming strategy that:
+1. Clearly indicates the type of work (e.g., feature, bugfix, hotfix)
+2. Includes relevant ticket or issue numbers
+3. Is concise but descriptive
+
+Provide examples for different scenarios and explain the rationale behind the suggested convention.`
   }
 ];
 

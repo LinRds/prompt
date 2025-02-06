@@ -8,10 +8,14 @@ Templates are organized by development phases:
 - Planning Phase Templates
 - Implementation Phase Templates
 - Maintenance Phase Templates
+  - Testing Templates
+  - Security Templates
+  - Optimization Templates
+  - Version Control Templates
 
-Each template consists of two parts:
-- Core Prompt: The main template content
-- Assistant Prompts: Supplementary prompts for specific aspects
+Each template consists of:
+- Default Prompt: The main template content
+- Additional Prompts: Task-specific specialized prompts
 
 ## Template Location
 
@@ -35,16 +39,10 @@ src/
    ```json
    {
      "id": "unique_template_id",
+     "nodeId": "parent_node_id",
      "title": "Template Title",
      "description": "Brief description of the template's purpose",
-     "core_prompt": "Main prompt content with [variable_placeholders]",
-     "assistant_prompts": [
-       {
-         "id": "assistant_1",
-         "title": "Assistant Prompt 1",
-         "content": "Supplementary prompt content"
-       }
-     ]
+     "content": "Main prompt content with [variable_placeholders]"
    }
    ```
 
@@ -55,6 +53,10 @@ src/
      - `[language]`
      - `[framework]`
      - `[feature_description]`
+     - `[code]` - For code review/analysis
+     - `[bug_description]` - For debugging
+     - `[schema]` - For database operations
+     - `[version]` - For version control
 
 4. **Best Practices for Editing**
    - Maintain clear and concise language

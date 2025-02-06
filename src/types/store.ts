@@ -2,7 +2,11 @@ export type NodeCategory =
   | 'code-generation'    // 代码生成
   | 'code-review'        // 代码审核
   | 'database-design'    // 数据库设计
-  | 'documentation';     // 文档生成
+  | 'documentation'      // 文档生成
+  | 'testing'           // 测试
+  | 'security'          // 代码安全
+  | 'optimization'      // 优化
+  | 'version-control';   // 版本控制
 
 export interface PromptSegment {
   type: 'static' | 'input';
