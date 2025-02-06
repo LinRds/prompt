@@ -1,5 +1,3 @@
-export type PromptType = 'core' | 'assistant';
-
 export type NodeCategory = 
   | 'code-generation'    // 代码生成
   | 'code-review'        // 代码审核
@@ -32,7 +30,6 @@ export interface ProjectNode {
 export interface PromptTemplate {
   id: string;
   nodeId: string;
-  type: PromptType;
   title: string;
   description: string;
   content: string;
@@ -56,7 +53,7 @@ export interface AppState {
   clearAllInputs: () => void;
   getNodesByStage: (stage: 'planning' | 'implementation' | 'maintenance') => ProjectNode[];
   getPromptsByNodeId: (nodeId: string) => PromptTemplate[];
-  getCorePromptByNodeId: (nodeId: string) => PromptTemplate | undefined;
+  getDefaultPromptByNodeId: (nodeId: string) => PromptTemplate | undefined;
   parsePromptToSegments: (content: string) => PromptSegment[];
   generateFullPrompt: () => string;
 } 
