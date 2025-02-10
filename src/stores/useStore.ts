@@ -527,6 +527,30 @@ Please help me draft release notes that:
 3. Is concise but descriptive
 
 Provide examples for different scenarios and explain the rationale behind the suggested convention.`
+  },
+  // 添加新的 Golang 技术方案模板
+  {
+    id: 'intro-golang-tech',
+    nodeId: 'intro',
+    title: '技术方案模板2',
+    description: 'Golang开发技术方案模板',
+    content: `作为一位经验丰富的Golang编程专家，您面临的具体开发任务为：[任务描述]。
+
+请运用您的专业知识，详细阐述一种利用Golang实现该任务需求的高效算法或方法论。
+
+在您的描述中，请务必涵盖以下几点：
+
+具体实现步骤，包括必要的函数、类及数据结构的选择与设计。
+
+边界条件分析，识别并解释潜在的边缘案例及如何妥善处理这些情况。
+
+错误处理机制，描述如何在代码中实施健壮的错误检测与异常处理逻辑，以确保程序稳定性。
+
+安全性考量，讨论可能的安全威胁及推荐的防范措施，确保代码执行过程中的数据安全与隐私保护。
+
+性能优化建议，提出提高代码执行效率的方法，包括但不限于算法优化、资源管理和缓存策略。
+
+请确保您的解答不仅技术准确，而且条理清晰、易于理解，以便其他开发者能够快速掌握并应用于实际项目中。`
   }
 ];
 
